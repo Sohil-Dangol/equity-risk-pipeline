@@ -1,0 +1,34 @@
+sector,regime,n_days,ann_return_pct,ann_vol_pct
+Communication,1 Low (<15),1030,21.4,12.4
+Communication,2 Mid (15-25),1357,11.5,17.8
+Communication,3 High (25+),377,24.4,33.3
+Consumer Discretionary,1 Low (<15),1030,20.4,14.5
+Consumer Discretionary,2 Mid (15-25),1357,19.0,22.0
+Consumer Discretionary,3 High (25+),377,49.3,41.6
+Consumer Staples,1 Low (<15),1030,11.7,9.7
+Consumer Staples,2 Mid (15-25),1357,13.6,13.3
+Consumer Staples,3 High (25+),377,13.3,28.6
+Energy,1 Low (<15),1030,-6.1,17.4
+Energy,2 Mid (15-25),1357,20.9,28.0
+Energy,3 High (25+),377,11.7,56.6
+Financials,1 Low (<15),1030,21.5,15.6
+Financials,2 Mid (15-25),1357,12.1,23.2
+Financials,3 High (25+),377,26.7,46.8
+Health Care,1 Low (<15),1030,15.2,11.9
+Health Care,2 Mid (15-25),1357,9.4,16.5
+Health Care,3 High (25+),377,40.1,30.2
+Industrials,1 Low (<15),1030,7.4,13.5
+Industrials,2 Mid (15-25),1357,15.9,20.5
+Industrials,3 High (25+),377,28.1,44.6
+Materials,1 Low (<15),1030,12.9,14.6
+Materials,2 Mid (15-25),1357,8.3,18.8
+Materials,3 High (25+),377,50.6,37.8
+Real Estate,1 Low (<15),1030,12.7,16.3
+Real Estate,2 Mid (15-25),1357,15.9,20.3
+Real Estate,3 High (25+),377,7.9,42.4
+Technology,1 Low (<15),1030,27.2,18.7
+Technology,2 Mid (15-25),1357,32.8,26.4
+Technology,3 High (25+),377,73.8,46.3
+Utilities,1 Low (<15),1030,6.4,13.9
+Utilities,2 Mid (15-25),1357,17.7,16.7
+Utilities,3 High (25+),377,8.8,37.9

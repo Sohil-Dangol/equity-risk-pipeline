@@ -1,0 +1,12 @@
+sector,ann_return_pct,ann_vol_pct,return_to_risk,worst_day_pct,rank_by_return_to_risk
+Technology,36.32,27.68,1.31,-15.37,1
+Consumer Discretionary,23.66,23.48,1.01,-14.25,2
+Health Care,15.75,17.65,0.89,-9.9,3
+Communication,16.94,19.09,0.89,-9.39,4
+Consumer Staples,12.86,15.3,0.84,-8.9,5
+Materials,15.79,21.21,0.74,-14.48,6
+Financials,17.61,25.59,0.69,-13.73,7
+Industrials,14.38,23.38,0.62,-12.47,8
+Utilities,12.27,20.11,0.61,-11.74,9
+Real Estate,13.65,23.39,0.58,-16.22,10
+Energy,9.59,30.59,0.31,-19.96,11

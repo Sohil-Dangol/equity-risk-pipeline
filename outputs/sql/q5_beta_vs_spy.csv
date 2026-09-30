@@ -1,0 +1,49 @@
+ticker,sector,beta,ann_vol_pct,beta_rank
+NVDA,Technology,1.766,48.7,1
+TSLA,Consumer Discretionary,1.59,57.7,2
+AVGO,Technology,1.436,39.1,3
+BA,Industrials,1.354,40.1,4
+MS,Financials,1.33,31.3,5
+BAC,Financials,1.214,30.7,6
+AAPL,Technology,1.212,28.8,7
+GS,Financials,1.211,29.1,8
+MSFT,Technology,1.188,26.9,9
+AMZN,Consumer Discretionary,1.184,32.9,10
+WFC,Financials,1.149,31.2,11
+GOOGL,Communication,1.148,28.8,12
+NFLX,Communication,1.145,42.8,13
+SLB,Energy,1.13,39.0,14
+COP,Energy,1.126,38.0,15
+GE,Industrials,1.112,34.6,16
+JPM,Financials,1.1,27.1,17
+CAT,Industrials,1.081,30.0,18
+NKE,Consumer Discretionary,1.031,31.0,19
+ORCL,Technology,1.028,32.1,20
+DIS,Communication,1.0,28.0,21
+PLD,Real Estate,0.966,26.5,22
+CVX,Energy,0.965,29.1,23
+HD,Consumer Discretionary,0.952,24.3,24
+HON,Industrials,0.945,22.9,25
+SHW,Materials,0.898,26.0,26
+LIN,Materials,0.882,22.5,27
+UPS,Industrials,0.85,26.4,28
+XOM,Energy,0.829,27.4,29
+BRK-B,Financials,0.825,19.3,30
+UNH,Health Care,0.791,28.7,31
+COST,Consumer Staples,0.707,21.6,32
+AMT,Real Estate,0.697,25.4,33
+LLY,Health Care,0.692,29.2,34
+ABBV,Health Care,0.654,26.6,35
+NEE,Utilities,0.64,24.7,36
+MCD,Consumer Discretionary,0.634,20.2,37
+PFE,Health Care,0.601,23.5,38
+PEP,Consumer Staples,0.576,19.0,39
+T,Communication,0.571,22.7,40
+MRK,Health Care,0.556,22.5,41
+KO,Consumer Staples,0.536,17.8,42
+WMT,Consumer Staples,0.52,21.5,43
+SO,Utilities,0.514,21.5,44
+PG,Consumer Staples,0.511,18.5,45
+JNJ,Health Care,0.491,18.2,46
+DUK,Utilities,0.48,20.3,47
+VZ,Communication,0.421,19.5,48

@@ -1,0 +1,50 @@
+ticker,sector,max_drawdown_pct,trough_date
+SLB,Energy,-84.8,2020-03-18
+GE,Industrials,-81.2,2020-05-15
+BA,Industrials,-77.9,2020-03-20
+NFLX,Communication,-75.9,2022-05-11
+TSLA,Consumer Discretionary,-73.6,2023-01-03
+COP,Energy,-70.7,2020-03-18
+NKE,Consumer Discretionary,-68.5,2025-04-08
+NVDA,Technology,-66.3,2022-10-14
+WFC,Financials,-64.5,2020-10-29
+UNH,Health Care,-61.4,2025-08-01
+XOM,Energy,-61.3,2020-03-23
+DIS,Communication,-60.7,2023-10-04
+PFE,Health Care,-59.0,2025-04-10
+UPS,Industrials,-57.9,2025-09-25
+AMZN,Consumer Discretionary,-56.1,2022-12-28
+CVX,Energy,-55.8,2020-03-23
+MS,Financials,-51.3,2020-03-23
+BAC,Financials,-48.9,2020-03-23
+GS,Financials,-48.7,2020-03-23
+AVGO,Technology,-48.3,2020-03-18
+ORCL,Technology,-45.6,2025-12-17
+AMT,Real Estate,-45.3,2023-10-04
+ABBV,Health Care,-45.1,2019-08-15
+NEE,Utilities,-45.0,2023-10-09
+GOOGL,Communication,-44.3,2022-11-03
+JPM,Financials,-43.6,2020-03-23
+MRK,Health Care,-43.4,2025-05-14
+CAT,Industrials,-43.4,2020-03-23
+PLD,Real Estate,-43.3,2025-04-08
+HON,Industrials,-43.0,2020-03-23
+SHW,Materials,-42.5,2022-10-20
+VZ,Communication,-41.2,2023-10-13
+T,Communication,-39.4,2023-07-18
+AAPL,Technology,-38.5,2019-01-03
+SO,Utilities,-38.4,2020-03-23
+HD,Consumer Discretionary,-38.0,2020-03-20
+DUK,Utilities,-37.4,2020-03-23
+MSFT,Technology,-37.1,2022-11-03
+KO,Consumer Staples,-37.0,2020-03-23
+MCD,Consumer Discretionary,-36.9,2020-03-23
+WMT,Consumer Staples,-36.4,2015-11-13
+LLY,Health Care,-34.5,2025-08-08
+SPY,Index,-33.7,2020-03-23
+LIN,Materials,-32.6,2020-03-23
+COST,Consumer Staples,-31.4,2022-05-20
+PEP,Consumer Staples,-30.3,2025-05-14
+BRK-B,Financials,-29.6,2020-03-23
+JNJ,Health Care,-27.4,2020-03-23
+PG,Consumer Staples,-24.5,2015-09-14
