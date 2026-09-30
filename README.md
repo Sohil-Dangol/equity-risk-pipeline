@@ -1,156 +1,428 @@
-# Equity risk and volatility analytics pipeline
+# Equity Risk & Volatility Analytics Pipeline
 
-An end-to-end finance data project in Python, SQL and Excel. It loads daily market data for 48 US large caps
-plus SPY into a SQL database, analyses risk with SQL, builds a formula-driven Excel risk dashboard, then tests
-whether regime-aware models forecast volatility better than standard ones and whether better forecasts help a
-volatility-targeting strategy.
+An end-to-end **finance data-science project** combining Python, SQL, statistical modelling, machine learning and Excel.
 
-**Question:** how do risk and return behave across market regimes, and does a regime-aware model forecast
-volatility better than a plain GARCH model?
+The pipeline analyses daily market data for **48 US large-cap equities plus SPY**, combines it with VIX and macroeconomic data, stores the data in a relational database, performs financial analysis in SQL, builds an interactive Excel risk dashboard, and evaluates whether regime-aware models can improve one-day-ahead volatility forecasts and volatility-targeting performance.
 
-**Short answer:** risk changes a lot across regimes, but the regime-aware models (hidden Markov models) did not
-beat GARCH(1,1) out of sample. Volatility targeting cut maximum drawdown by about two thirds without a
-measurable change in Sharpe ratio.
+## Research Question
 
-## Results
+> **How do risk and return behave across market regimes, and does a regime-aware model forecast volatility better than a standard GARCH model?**
 
-Data: Yahoo Finance prices and FRED macro series, 2015-2025. Forecasts are walk-forward and out of sample,
-2018-01-04 to 2025-12-30 (2,008 days). Full tables and caveats are in [`outputs/findings.md`](outputs/findings.md).
+The project evaluates several forecasting approaches using a walk-forward, out-of-sample framework:
 
-### Risk depends on the regime
+* Rolling historical volatility
+* EWMA
+* GARCH(1,1)-t
+* VIX-based regime buckets
+* 2-state Hidden Markov Model
+* 3-state Hidden Markov Model
 
-Using the previous day's VIX close as the regime signal, average sector volatility was **14.4%** when VIX was below 15
-and **40.6%** when it was 25 or above, roughly 2.8 times higher (query `q6`).
+Forecasts are evaluated using **QLIKE**, **Mincer-Zarnowitz regression**, and **Diebold-Mariano tests**.
 
-### Volatility forecasting (SPY, one day ahead)
+The resulting volatility forecasts are then used in a **10% volatility-targeting strategy** to investigate whether better risk forecasts translate into better portfolio risk management.
 
-![Volatility forecasts](outputs/figures/vol_forecasts.png)
+---
 
-| Model | QLIKE (lower is better) | Mincer-Zarnowitz R² | Diebold-Mariano p-value vs GARCH |
-|---|---|---|---|
-| **GARCH(1,1)-t** | **0.945** | **0.27** | n/a |
-| VIX bucket | 1.030 | 0.03 | 0.13 |
-| EWMA | 1.031 | 0.16 | 0.001 |
-| Rolling 21-day | 1.079 | 0.14 | < 0.001 |
-| HMM 3-state | 1.087 | 0.02 | 0.16 |
-| HMM 2-state | 1.160 | 0.02 | 0.11 |
+## Key Findings
 
-- GARCH had the lowest QLIKE and the highest R². EWMA and the rolling window were significantly worse than GARCH.
-- The HMMs and the VIX bucket model were worse than GARCH on average, but the differences are not statistically significant at the 5% level.
-- The HMMs lost most on high-VIX days. When the prior-day VIX was 25 or above, QLIKE was 2.37 for GARCH and 3.20 to 3.48 for the HMMs. These days dominate the total loss because QLIKE punishes under-forecasting heavily.
-- On mid-VIX days (15 to 25) the VIX bucket model and the 3-state HMM were slightly better than GARCH (0.963 vs 0.980). That difference was not tested.
+### 1. Risk varies substantially across market regimes
 
-Possible reasons for the HMM result, none of them tested yet: each state has a constant variance, so the model can't capture
-volatility clustering inside a regime the way GARCH does; quarterly refits react slowly to sudden shocks; and Gaussian
-emissions treat a single fat-tailed return as evidence of a regime change, which makes the state probabilities
-flicker (visible in the bottom panel of the figure).
+Using the previous day's VIX close as a causal regime indicator, average annualised sector volatility was:
 
-### Volatility-targeting backtest
+* **14.4%** when VIX was below 15
+* **40.6%** when VIX was 25 or above
 
-Target volatility 10%, SPY weight capped at 100% (no leverage), remainder in cash, 5bp cost per unit of turnover.
-The weight for each day is set from the previous day's forecast.
+This indicates a substantial increase in realised risk during high-volatility market conditions.
 
-![Backtest](outputs/figures/backtest_equity.png)
+The sector analysis also demonstrates how return, volatility and drawdown characteristics vary across the equity universe.
 
-| Strategy | CAGR | Ann. vol | Sharpe | Max drawdown | Turnover / yr |
-|---|---|---|---|---|---|
-| Buy and hold SPY | 14.2% | 19.5% | 0.65 | -33.7% | 0.0 |
-| Vol target, GARCH | 9.4% | 10.0% | 0.69 | -12.2% | 11.6 |
-| Vol target, EWMA | 8.9% | 10.2% | 0.64 | -12.8% | 4.4 |
-| Vol target, HMM 2-state | 9.0% | 10.8% | 0.61 | -19.5% | 13.5 |
-| Vol target, HMM 3-state | 8.9% | 10.8% | 0.61 | -17.6% | 12.9 |
+### 2. GARCH(1,1)-t performed best for volatility forecasting
 
-Volatility targeting worked as a risk tool: realised volatility landed close to the 10% target and drawdowns shrank a lot.
-The Sharpe differences (0.61 to 0.69 against 0.65) are within noise for an 8 year sample, and CAGR fell because
-average SPY exposure was about 70%. The GARCH forecast gave the best drawdown control.
+For SPY one-day-ahead volatility forecasts over the out-of-sample period **4 January 2018 to 30 December 2025** (2,008 trading days):
 
-## What the pipeline does
+| Model            |    QLIKE ↓ | Mincer-Zarnowitz R² | DM p-value vs GARCH |
+| ---------------- | ---------: | ------------------: | ------------------: |
+| **GARCH(1,1)-t** | **0.9453** |          **0.2716** |                   — |
+| VIX bucket       |     1.0301 |              0.0266 |              0.1308 |
+| EWMA             |     1.0306 |              0.1635 |              0.0012 |
+| Rolling 21-day   |     1.0788 |              0.1367 |              <0.001 |
+| HMM 3-state      |     1.0874 |              0.0242 |              0.1621 |
+| HMM 2-state      |     1.1598 |              0.0173 |              0.1071 |
 
-| Step | File | What it does |
-|---|---|---|
-| Data | `src/fetch_data.py` | Prices (yfinance), VIX / 10-year yield / Fed funds (FRED), annual fundamentals |
-| Demo data | `src/generate_sample_data.py` | Synthetic market with built-in regimes, so the pipeline runs offline |
-| Database | `sql/schema.sql`, `src/load_db.py` | SQLite schema with keys and indexes |
-| SQL analysis | `sql/views.sql`, `sql/queries/q1..q8` | Window functions, CTEs, joins, `NTILE`, `RANK`. Output in `outputs/sql/` |
-| Models | `src/models.py` | Walk-forward forecasts: rolling, EWMA, GARCH-t, VIX bucket, 2 and 3 state HMM |
-| Backtest | `src/backtest.py` | Volatility targeting on SPY with trading costs |
-| Excel | `src/build_excel.py` | Dashboard: VaR, CVaR, drawdown, beta, correlation matrix, stress tests, charts |
-| Report | `src/report.py` | Writes `outputs/findings.md` from the results |
+GARCH(1,1)-t produced the lowest QLIKE and highest Mincer-Zarnowitz \(R^2\).
 
-```mermaid
-erDiagram
-    companies ||--o{ prices : has
-    companies ||--o{ fundamentals : reports
-    companies { text ticker PK  text name  text sector }
-    prices { text ticker FK  text date  real adj_close  real close  int volume }
-    fundamentals { text ticker FK  text period_end  real net_income  real total_equity  text available_date }
-    macro { text series_id  text date  real value }
+EWMA and rolling volatility were significantly worse than GARCH according to the Diebold-Mariano tests.
+
+The HMM models also produced higher average QLIKE than GARCH, but the differences were **not statistically significant at the 5% level** over the full out-of-sample period.
+
+This suggests that, for this dataset and modelling specification, introducing latent volatility regimes did not provide statistically significant forecasting improvements over a well-specified GARCH model.
+
+### 3. Volatility targeting substantially reduced drawdowns
+
+A simple volatility-targeting strategy was constructed with:
+
+* 10% target volatility
+* SPY exposure capped at 100%
+* remaining capital held as cash
+* position determined using the previous day's volatility forecast
+* 5 basis points of transaction cost per unit of turnover
+
+| Strategy                     |     CAGR | Annualised Vol. |    Sharpe | Max Drawdown | Avg. SPY Weight |
+| ---------------------------- | -------: | --------------: | --------: | -----------: | --------------: |
+| Buy & hold SPY               |    14.2% |           19.5% |     0.648 |       -33.7% |          100.0% |
+| Vol target: EWMA             |     8.9% |           10.2% |     0.635 |       -12.8% |           69.6% |
+| **Vol target: GARCH(1,1)-t** | **9.4%** |       **10.0%** | **0.690** |   **-12.2%** |           70.5% |
+| Vol target: HMM 2-state      |     9.0% |           10.8% |     0.613 |       -19.5% |           68.5% |
+| Vol target: HMM 3-state      |     8.9% |           10.8% |     0.610 |       -17.6% |           69.9% |
+
+Volatility targeting reduced maximum drawdown substantially and kept realised volatility close to the 10% target.
+
+However, lower portfolio exposure also reduced CAGR relative to buy-and-hold SPY. The observed Sharpe differences are small enough that the sample does not provide strong evidence that one strategy has a materially different risk-adjusted return from another.
+
+---
+
+## Data
+
+### Market data
+
+* **Yahoo Finance**
+* Daily adjusted prices
+* 48 US large-cap equities
+* SPY benchmark
+* 2015–2025
+
+### Macro data
+
+* **FRED**
+* VIX
+* 10-year Treasury yield
+* Federal funds rate
+
+### Fundamentals
+
+Selected annual company fundamentals retrieved through Yahoo Finance.
+
+The project treats reported fundamentals as point-in-time information using an availability-date assumption to reduce lookahead bias.
+
+### Synthetic data
+
+The pipeline also contains a synthetic data generator with built-in volatility regimes.
+
+Synthetic mode is intended for:
+
+* offline demonstrations
+* testing
+* reproducibility when internet access is unavailable
+
+Synthetic results are clearly separated from the real-data findings above.
+
+---
+
+## Pipeline Architecture
+
+```text
+Yahoo Finance + FRED
+        │
+        ▼
+Data ingestion and cleaning
+        │
+        ▼
+Relational database
+        │
+        ├───────────────┐
+        ▼               ▼
+     SQL analysis     Python analysis
+        │               │
+        │         ┌─────┼─────────────┐
+        │         ▼     ▼             ▼
+        │       GARCH  HMM       Other forecasts
+        │         │     │             │
+        │         └─────┼─────────────┘
+        │               ▼
+        │        Out-of-sample
+        │        model evaluation
+        │               │
+        └───────┬───────┘
+                ▼
+        Volatility-targeting
+             backtest
+                │
+        ┌───────┴────────┐
+        ▼                ▼
+   Excel dashboard    Findings/report
 ```
 
-### Excel dashboard
+---
 
-`outputs/risk_dashboard.xlsx` holds a 10-stock portfolio (last 504 trading days). Every number on the Risk and Summary tabs is a
-live formula, so changing the weights on the Inputs tab updates 1-day historical and parametric VaR, CVaR, drawdown,
-beta, the correlation matrix and the stress scenarios. I checked the headline figures against an independent pandas calculation.
+# SQL Analysis
 
-### SQL queries
+The database contains relational tables for:
 
-| Query | What it shows |
-|---|---|
-| `q1_data_quality` | Row counts, date ranges, bad prices, extreme moves per ticker |
-| `q2_sector_performance` | Equal-weight sector portfolios, `RANK()` |
-| `q3_market_vol_monthly` | 30-day rolling volatility view, month-end sampling, join to VIX |
-| `q4_max_drawdown` | Running max with a window frame, `ROW_NUMBER()` |
-| `q5_beta_vs_spy` | Beta from covariance and variance written in plain SQL |
-| `q6_regime_performance` | Sector return and volatility by prior-day VIX bucket |
-| `q7_fundamentals_vs_returns` | Point-in-time join (report date + 90 days), `NTILE(4)` |
-| `q8_worst_market_days` | Worst SPY days with the VIX close |
+* companies
+* prices
+* fundamentals
+* macroeconomic data
 
-## Run it
+The SQL layer uses a range of analytical techniques rather than simple filtering and aggregation.
+
+### Queries
+
+| Query                        | Analysis                                                          |
+| ---------------------------- | ----------------------------------------------------------------- |
+| `q1_data_quality`            | Row counts, date ranges, invalid prices and extreme returns       |
+| `q2_sector_performance`      | Equal-weight sector returns and risk using `RANK()`               |
+| `q3_market_vol_monthly`      | Rolling 30-day volatility and monthly VIX observations            |
+| `q4_max_drawdown`            | Running highs, drawdowns and worst periods using window functions |
+| `q5_beta_vs_spy`             | Beta calculated directly in SQL                                   |
+| `q6_regime_performance`      | Sector return and volatility across VIX regimes                   |
+| `q7_fundamentals_vs_returns` | Point-in-time fundamentals joined to subsequent returns           |
+| `q8_worst_market_days`       | Worst SPY trading days alongside VIX                              |
+
+The SQL implementation demonstrates:
+
+* CTEs
+* joins
+* window functions
+* `LAG()`
+* rolling calculations
+* `ROW_NUMBER()`
+* `RANK()`
+* `NTILE()`
+* financial-statistical calculations directly in SQL
+
+---
+
+# Volatility Modelling
+
+The modelling pipeline uses **walk-forward forecasting** rather than randomly splitting the time series.
+
+Models are refitted on an expanding window every 63 trading days, and each forecast only uses information available before the forecast date.
+
+### Models
+
+**Rolling volatility**
+
+A simple historical benchmark using recent realised returns.
+
+**EWMA**
+
+Exponentially weighted volatility, giving more weight to recent observations.
+
+**GARCH(1,1)-t**
+
+A conditional-volatility model with Student-t innovations designed to better accommodate heavy-tailed financial returns.
+
+**VIX bucket model**
+
+Forecasts volatility based on the previous day's VIX regime.
+
+**Hidden Markov Models**
+
+Two- and three-state models are used to identify latent volatility regimes.
+
+---
+
+# Avoiding Lookahead Bias
+
+A major focus of the project is ensuring that the forecasting and backtesting framework is causal.
+
+### VIX regimes
+
+Regime classification uses the **previous day's VIX close**, not the contemporaneous value.
+
+### HMM filtering
+
+Standard HMM smoothing can use future observations.
+
+To avoid this, the project uses a **forward-only filtering implementation** for live-style regime probabilities.
+
+A dedicated test checks that adding future observations does not change earlier filtered probabilities.
+
+### Walk-forward evaluation
+
+Models are refitted periodically using only historical observations available at that point in time.
+
+### Fundamentals
+
+Fundamental information is treated as becoming available after a reporting delay rather than being assumed to have been known immediately at fiscal year-end.
+
+### Backtest timing
+
+The position for day \(t\) is determined using the volatility forecast generated from information available through day \(t-1\).
+
+---
+
+# Model Evaluation
+
+Squared returns are a noisy proxy for realised variance, so model performance is not judged using MSE alone.
+
+### QLIKE
+
+QLIKE is used as the primary volatility forecast loss function because it is designed for variance forecasts and penalises under-forecasting strongly.
+
+### Mincer-Zarnowitz regression
+
+Used to examine the explanatory power and calibration of volatility forecasts.
+
+### Diebold-Mariano test
+
+Used to test whether the forecast loss of each alternative model differs significantly from GARCH.
+
+This provides a statistical comparison rather than simply choosing the model with the lowest point estimate.
+
+---
+
+# Volatility-Targeting Backtest
+
+The backtest translates volatility forecasts into a simple risk-management strategy.
+
+The target is:
+
+$$
+\sigma_{target}=10\%
+$$
+
+The approximate portfolio weight is determined by the relationship between target and forecast volatility, subject to a maximum SPY exposure of 100%.
+
+Transaction costs are included at **5 basis points per unit of turnover**.
+
+The backtest reports:
+
+* CAGR
+* annualised volatility
+* Sharpe ratio
+* maximum drawdown
+* Calmar ratio
+* average SPY weight
+* turnover
+
+The purpose is not to claim a trading edge, but to examine whether volatility forecasting can improve **risk control**.
+
+---
+
+# Excel Risk Dashboard
+
+`outputs/risk_dashboard.xlsx` contains a formula-driven portfolio risk dashboard.
+
+The workbook includes:
+
+### Portfolio analytics
+
+* annualised return
+* annualised volatility
+* Sharpe ratio
+* maximum drawdown
+* beta
+* correlation matrix
+
+### Risk measures
+
+* historical VaR
+* parametric VaR
+* CVaR / Expected Shortfall
+* dollar VaR
+* stress scenarios
+
+### Interactive inputs
+
+Portfolio weights and selected risk parameters can be changed on the Inputs sheet, with the downstream risk calculations updating through Excel formulas.
+
+The workbook was independently cross-checked against pandas calculations for the headline risk metrics.
+
+---
+
+# Project Structure
+
+```text
+equity-risk-pipeline/
+│
+├── config.py
+├── run_pipeline.py
+├── requirements.txt
+├── README.md
+│
+├── sql/
+│   ├── schema.sql
+│   ├── views.sql
+│   └── queries/
+│       ├── q1_data_quality.sql
+│       ├── q2_sector_performance.sql
+│       ├── q3_market_vol_monthly.sql
+│       ├── q4_max_drawdown.sql
+│       ├── q5_beta_vs_spy.sql
+│       ├── q6_regime_performance.sql
+│       ├── q7_fundamentals_vs_returns.sql
+│       └── q8_worst_market_days.sql
+│
+├── src/
+│   ├── fetch_data.py
+│   ├── generate_sample_data.py
+│   ├── load_db.py
+│   ├── run_sql.py
+│   ├── models.py
+│   ├── backtest.py
+│   ├── build_excel.py
+│   └── report.py
+│
+├── tests/
+│   └── test_pipeline.py
+│
+└── outputs/
+    ├── forecasts.csv
+    ├── model_metrics.csv
+    ├── model_metrics_by_regime.csv
+    ├── backtest_metrics.csv
+    ├── backtest_equity_curves.csv
+    ├── risk_dashboard.xlsx
+    ├── findings.md
+    ├── figures/
+    └── sql/
+```
+
+---
+
+# Testing
+
+The project includes automated tests covering both numerical correctness and methodological issues.
+
+Tests include:
+
+* SQL calculations compared with pandas
+* beta calculations
+* data-quality checks
+* HMM probability behaviour
+* HMM causality / no-future-information checks
+* QLIKE behaviour
+* Diebold-Mariano test behaviour
+
+Run:
+
+```bash
+pytest tests
+```
+
+---
+
+# Running the Project
+
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
-
-python run_pipeline.py --source real        # Yahoo Finance + FRED, needs internet
-python run_pipeline.py --source synthetic   # offline demo data, about 80 seconds
-pytest tests                                # run after a pipeline run
 ```
 
-The synthetic mode has regimes built into the data, so its results only show that the code runs. Outputs are labelled when
-they come from synthetic data. The results above are from a real-data run.
+### Real data
 
-## Avoiding common backtesting mistakes
-
-- **Regimes use no future data:** the VIX regime is based on the previous day's close.
-- **The HMM filter is causal:** hmmlearn's `predict_proba` is smoothed, which uses future observations. `models.filter_probs` is a forward-only filter, and a test checks that truncating the series leaves earlier rows unchanged.
-- **Walk-forward evaluation:** models are refit on an expanding window every 63 days, and the forecast for day t+1 only uses data up to day t.
-- **Point-in-time fundamentals:** a fiscal year's numbers are treated as known 90 days after year end.
-- **A suitable loss function:** squared returns are a very noisy variance proxy, so models are compared with QLIKE and Diebold-Mariano tests rather than raw squared error alone.
-- **Trading costs** are included in the backtest.
-
-## Limitations
-
-- **Survivorship bias:** the universe is today's large caps. Sector returns (Technology at about 36% a year) are flattered by including recent winners.
-- **Small high-VIX sample:** days with the prior-day VIX at 25 or above are clustered in a few episodes, 2020 most of all, so the stress-regime comparison is thin evidence.
-- **Fundamentals are thin:** yfinance only returns a few years of statements, giving about 25 observations per ROE quartile in `q7`. That query demonstrates the point-in-time join and is not evidence about factor returns. ROE is also distorted by companies with very small equity (the top quartile averages over 200%).
-- **Backtest simplifications:** flat 5bp cost, no weight drift, financing or taxes, and no leverage.
-- **Modest evidence on Sharpe:** the Sharpe differences between strategies are not statistically distinguishable.
-- **Database:** the SQL is written for SQLite. Most of it should port to PostgreSQL but that has not been tested.
-
-## Next steps
-
-1. Student-t emissions or VIX as a second observed feature in the HMM, to address the flickering state probabilities.
-2. A combined forecast (for example GARCH plus the VIX bucket) and a check of whether excluding 2020 changes the stress-day result.
-3. SEC EDGAR fundamentals for a real history, and more factors (leverage, margins).
-4. Use Excel's Solver on the Inputs tab to maximise the Sharpe ratio, then compare out of sample.
-5. Move the database to PostgreSQL in Docker.
-
-## Layout
-
+```bash
+python run_pipeline.py --source real
 ```
-run_pipeline.py     config.py     requirements.txt
-sql/                schema.sql, views.sql, queries/
-src/                data, loading, SQL runner, models, backtest, Excel, report
-tests/              SQL vs pandas checks, HMM causality, loss-function tests
-outputs/            risk_dashboard.xlsx, findings.md, figures/, sql/*.csv
+
+This requires internet access and downloads Yahoo Finance and FRED data.
+
+### Synthetic data
+
+```bash
+python run_pipeline.py --source synthetic
 ```
+
+Synthetic mode generates a reproducible regime-switching dat
